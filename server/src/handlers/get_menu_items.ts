@@ -1,8 +1,21 @@
+import { db } from '../db';
+import { menuItemsTable } from '../db/schema';
 import { type MenuItem } from '../schema';
 
 export async function getMenuItems(): Promise<MenuItem[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all menu items from the database.
-    // Should use drizzle ORM to select all items from menuItemsTable.
-    return [];
+  try {
+    // Select all menu items from the database
+    const results = await db.select()
+      .from(menuItemsTable)
+      .execute();
+
+    // Convert numeric price fields back to numbers before returning
+    return results.map(item => ({
+      ...item,
+      price: parseFloat(item.price) // Convert string back to number
+    }));
+  } catch (error) {
+    console.error('Failed to fetch menu items:', error);
+    throw error;
+  }
 }

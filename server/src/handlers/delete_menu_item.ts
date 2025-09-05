@@ -1,9 +1,22 @@
+import { db } from '../db';
+import { menuItemsTable } from '../db/schema';
 import { type DeleteMenuItemInput } from '../schema';
+import { eq } from 'drizzle-orm';
 
-export async function deleteMenuItem(input: DeleteMenuItemInput): Promise<{ success: boolean }> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is deleting a menu item from the database by its ID.
-    // Should use drizzle ORM to delete the item from menuItemsTable.
-    // Returns success status indicating whether the deletion was successful.
-    return { success: false };
-}
+export const deleteMenuItem = async (input: DeleteMenuItemInput): Promise<{ success: boolean }> => {
+  try {
+    // Delete the menu item by ID
+    const result = await db.delete(menuItemsTable)
+      .where(eq(menuItemsTable.id, input.id))
+      .returning()
+      .execute();
+
+    // Check if any rows were deleted
+    const success = result.length > 0;
+    
+    return { success };
+  } catch (error) {
+    console.error('Menu item deletion failed:', error);
+    throw error;
+  }
+};
